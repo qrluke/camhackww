@@ -1,11 +1,12 @@
 script_name("camhackww")
 script_authors("sanek a.k.a Maks_Fender", "qrlk")
-script_version("08.06.2020")
+script_version("09.06.2020")
 script_description("Простой камхак с обходом варнингов")
 
 local inicfg = require "inicfg"
 local sampev = require "lib.samp.events"
 local key = require("vkeys")
+local dlstatus = require("moonloader").download_status
 
 color = 0x7ef3fa
 settings =
@@ -88,7 +89,7 @@ function updateMenu()
                             "{7ef3fa}/camhackww v." .. thisScript().version .. ' - информация о модуле {00ff66}"Камхак"',
                             "{00ff66}Camhack{ffffff}\n{ffffff}Представляет собой обыкновенный камхак, но с обходом платных варнингов.\n\nПо нажатию хоткея {00ccff}" ..
                                 tostring(key.id_to_name(settings.camhack.key)) ..
-                                    "{ffffff} + 1 камхак активируется.\nПосле нажатия вы сможете свободно управлять камерой через {00ccff}WASD{ffffff}.\nКамеру можно замедлять на {00ccff}SHIFT{ffffff} и ускорять на {00ccff}SPACE{ffffff}.\n{00ccff}F10{ffffff} включает/выключает худ.\nВыключить: {00ccff}" ..
+                                    "{ffffff} + 1 камхак активируется.\nПосле нажатия вы сможете свободно управлять камерой через {00ccff}WASD{ffffff}.\nКамеру можно вниз на {00ccff}SHIFT{ffffff} и вверх на {00ccff}Space{ffffff}.\nКамеру можно замедлять на {00ccff}-{ffffff} и ускорять на {00ccff}+{ffffff}.\n{00ccff}F10{ffffff} включает/выключает худ.\nВыключить: {00ccff}" ..
                                         tostring(key.id_to_name(settings.camhack.key)) ..
                                             '{ffffff} + 2.\n\nЕсли камера залагает, включите и выключите ещё раз.\nВ настройках можно изменить хоткей и вкл/выкл модуль.\n\nАвторы камхака: "sanek a.k.a Maks_Fender, edited by ANIKI", обход варнингов мой',
                             "Окей"
