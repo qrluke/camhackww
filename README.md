@@ -16,7 +16,7 @@
 
 </p>
 
-A **[moonloader](https://gtaforums.com/topic/890987-moonloader/)** script that allows user to freely control the **[gta samp](https://sa-mp.com/)** camera.
+A **[moonloader](https://gtaforums.com/topic/890987-moonloader/)** script that allows the user to freely control the **[gta samp](https://sa-mp.com/)** camera.
 
 There are many such scripts, but **camhackww** is unique in that no one can punish the user for using the script, because it bypasses the known detection methods.
 
