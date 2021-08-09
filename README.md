@@ -23,9 +23,10 @@ There are many such scripts, but **camhackww** is unique in that no one can puni
 It also requires **[CLEO 4+](http://cleo.li/?lang=ru)**, **[SAMPFUNCS 5+](https://blast.hk/threads/17/)** and **[SAMP.Lua](https://github.com/THE-FYP/SAMP.Lua)**.
 
 ---
-
 **The following description is in Russian, because it is the main language of the user base**.
-
+<details>
+  <summary>Описание на русском языке.</summary>
+  
 # Описание 
 Доработанный [камхак sanek'a](https://www.blast.hk/threads/20243/), добавлена менюшка с детальными настройками и обход варнингов. Т.е. другие игроки, установив специальный софт, не смогут задетектить у вас использование камхака.  
 
@@ -34,3 +35,4 @@ It also requires **[CLEO 4+](http://cleo.li/?lang=ru)**, **[SAMPFUNCS 5+](https:
 # Скриншоты 
 ![https://i.imgur.com/TJzZbOI.png](https://i.imgur.com/TJzZbOI.png)
 ![https://i.imgur.com/C37JnXa.png](https://i.imgur.com/C37JnXa.png)
+</details>
