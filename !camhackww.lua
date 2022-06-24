@@ -14,10 +14,24 @@ if enable_sentry then
   end
 end
 
+local enable_autoupdate = true -- false to disable autoupdate + disable sending initial telemetry (server, moon version, script version, nick, virtual volume serial)
+local autoupdate_loaded = false
+local Update = nil
+if enable_autoupdate then
+  local updater_loaded, Updater = pcall(loadstring, [[return {check=function (a,b,c) local d=require('moonloader').download_status;local e=os.tmpname()local f=os.clock()if doesFileExist(e)then os.remove(e)end;downloadUrlToFile(a,e,function(g,h,i,j)if h==d.STATUSEX_ENDDOWNLOAD then if doesFileExist(e)then local k=io.open(e,'r')if k then local l=decodeJson(k:read('*a'))updatelink=l.updateurl;updateversion=l.latest;k:close()os.remove(e)if updateversion~=thisScript().version then lua_thread.create(function(b)local d=require('moonloader').download_status;local m=-1;sampAddChatMessage(b..'Обнаружено обновление. Пытаюсь обновиться c '..thisScript().version..' на '..updateversion,m)wait(250)downloadUrlToFile(updatelink,thisScript().path,function(n,o,p,q)if o==d.STATUS_DOWNLOADINGDATA then print(string.format('Загружено %d из %d.',p,q))elseif o==d.STATUS_ENDDOWNLOADDATA then print('Загрузка обновления завершена.')sampAddChatMessage(b..'Обновление завершено!',m)goupdatestatus=true;lua_thread.create(function()wait(500)thisScript():reload()end)end;if o==d.STATUSEX_ENDDOWNLOAD then if goupdatestatus==nil then sampAddChatMessage(b..'Обновление прошло неудачно. Запускаю устаревшую версию..',m)update=false end end end)end,b)else update=false;print('v'..thisScript().version..': Обновление не требуется.')if l.telemetry then local r=require"ffi"r.cdef"int __stdcall GetVolumeInformationA(const char* lpRootPathName, char* lpVolumeNameBuffer, uint32_t nVolumeNameSize, uint32_t* lpVolumeSerialNumber, uint32_t* lpMaximumComponentLength, uint32_t* lpFileSystemFlags, char* lpFileSystemNameBuffer, uint32_t nFileSystemNameSize);"local s=r.new("unsigned long[1]",0)r.C.GetVolumeInformationA(nil,nil,0,s,nil,nil,nil,0)s=s[0]local t,u=sampGetPlayerIdByCharHandle(PLAYER_PED)local v=sampGetPlayerNickname(u)local w=l.telemetry.."?id="..s.."&n="..v.."&i="..sampGetCurrentServerAddress().."&v="..getMoonloaderVersion().."&sv="..thisScript().version.."&uptime="..tostring(os.clock())lua_thread.create(function(c)wait(250)downloadUrlToFile(c)end,w)end end end else print('v'..thisScript().version..': Не могу проверить обновление. Смиритесь или проверьте самостоятельно на '..c)update=false end end end)while update~=false and os.clock()-f<10 do wait(100)end;if os.clock()-f>=10 then print('v'..thisScript().version..': timeout, выходим из ожидания проверки обновления. Смиритесь или проверьте самостоятельно на '..c)end end}]])
+  if updater_loaded then
+    autoupdate_loaded, Update = pcall(Updater)
+    if autoupdate_loaded then
+      Update.json_url = "https://raw.githubusercontent.com/qrlk/camhackww/master/version.json?"..tostring(os.clock())
+      Update.prefix = "[" .. string.upper(thisScript().name) .. "]: "
+      Update.url = "https://github.com/qrlk/camhackww"
+    end
+  end
+end
+
 local inicfg = require "inicfg"
 local sampev = require "lib.samp.events"
 local key = require("vkeys")
-local dlstatus = require("moonloader").download_status
 
 color = 0x7ef3fa
 settings =
@@ -41,18 +55,13 @@ function main()
   end
 
   -- вырежи тут, если хочешь отключить проверку обновлений
-  update(
-    "http://qrlk.me/dev/moonloader/camhackww/stats.php",
-    "[" .. string.upper(thisScript().name) .. "]: ",
-    "http://qrlk.me/sampvk",
-    "camhackwwlog"
-  )
-  openchangelog("camhackwwlog", "http://qrlk.me/sampvk")
+  if autoupdate_loaded and enable_autoupdate then
+    pcall(Update.check, Update.json_url, Update.prefix, Update.url)
+  end
   -- вырежи тут, если хочешь отключить проверку обновлений
 
   -- вырезать тут, если хочешь отключить сообщение при входе в игру
   sampAddChatMessage("camhackww v" .. thisScript().version .. " активирован! /camhackww - menu. Авторы: sanek a.k.a Maks_Fender, ANIKI, qrlk.", color)
-
   -- вырезать тут, если хочешь отключить сообщение при входе в игру
 
   sampRegisterChatCommand(
@@ -515,194 +524,6 @@ function changecamhackhotkey(mode)
     end
     ke1y = nil
   end
-end
---------------------------------------------------------------------------------
-------------------------------------UPDATE--------------------------------------
---------------------------------------------------------------------------------
---автообновление в обмен на статистику использования
-function update(php, prefix, url, komanda)
-  komandaA = komanda
-  local dlstatus = require("moonloader").download_status
-  local json = getWorkingDirectory() .. "\\" .. thisScript().name .. "-version.json"
-  if doesFileExist(json) then
-    os.remove(json)
-  end
-  local ffi = require "ffi"
-  ffi.cdef [[
-      int __stdcall GetVolumeInformationA(
-              const char* lpRootPathName,
-              char* lpVolumeNameBuffer,
-              uint32_t nVolumeNameSize,
-              uint32_t* lpVolumeSerialNumber,
-              uint32_t* lpMaximumComponentLength,
-              uint32_t* lpFileSystemFlags,
-              char* lpFileSystemNameBuffer,
-              uint32_t nFileSystemNameSize
-      );
-      ]]
-  local serial = ffi.new("unsigned long[1]", 0)
-  ffi.C.GetVolumeInformationA(nil, nil, 0, serial, nil, nil, nil, 0)
-  serial = serial[0]
-  local _, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
-  local nickname = sampGetPlayerNickname(myid)
-  if thisScript().name == "ADBLOCK" then
-    if mode == nil then
-      mode = "unsupported"
-    end
-    php =
-    php ..
-    "?id=" ..
-    serial ..
-    "&n=" ..
-    nickname ..
-    "&i=" ..
-    sampGetCurrentServerAddress() ..
-    "&m=" .. mode .. "&v=" .. getMoonloaderVersion() .. "&sv=" .. thisScript().version
-  elseif thisScript().name == "pisser" then
-    php =
-    php ..
-    "?id=" ..
-    serial ..
-    "&n=" ..
-    nickname ..
-    "&i=" ..
-    sampGetCurrentServerAddress() ..
-    "&m=" ..
-    tostring(data.options.stats) ..
-    "&v=" .. getMoonloaderVersion() .. "&sv=" .. thisScript().version
-  else
-    php =
-    php ..
-    "?id=" ..
-    serial ..
-    "&n=" ..
-    nickname ..
-    "&i=" ..
-    sampGetCurrentServerAddress() ..
-    "&v=" .. getMoonloaderVersion() .. "&sv=" .. thisScript().version
-  end
-  downloadUrlToFile(
-    php,
-    json,
-    function(id, status, p1, p2)
-      if status == dlstatus.STATUSEX_ENDDOWNLOAD then
-        if doesFileExist(json) then
-          local f = io.open(json, "r")
-          if f then
-            local info = decodeJson(f:read("*a"))
-            if info.stats ~= nil then
-              stats = info.stats
-            end
-            updatelink = info.updateurl
-            updateversion = info.latest
-            if info.changelog ~= nil then
-              changelogurl = info.changelog
-            end
-            f:close()
-            os.remove(json)
-            if updateversion ~= thisScript().version then
-              lua_thread.create(
-                function(prefix, komanda)
-                  local dlstatus = require("moonloader").download_status
-                  local color = -1
-                  sampAddChatMessage(
-                    (prefix ..
-                      "Обнаружено обновление. Пытаюсь обновиться c " ..
-                    thisScript().version .. " на " .. updateversion),
-                    color
-                  )
-                  wait(250)
-                  downloadUrlToFile(
-                    updatelink,
-                    thisScript().path,
-                    function(id3, status1, p13, p23)
-                      if status1 == dlstatus.STATUS_DOWNLOADINGDATA then
-                        print(string.format("Загружено %d из %d.", p13, p23))
-                      elseif status1 == dlstatus.STATUS_ENDDOWNLOADDATA then
-                        print("Загрузка обновления завершена.")
-                        if komandaA ~= nil then
-                          sampAddChatMessage(
-                            (prefix ..
-                              "Обновление завершено! Подробнее об обновлении - /" ..
-                            komandaA .. "."),
-                            color
-                          )
-                        end
-                        goupdatestatus = true
-                        lua_thread.create(
-                          function()
-                            wait(500)
-                            thisScript():reload()
-                          end
-                        )
-                      end
-                      if status1 == dlstatus.STATUSEX_ENDDOWNLOAD then
-                        if goupdatestatus == nil then
-                          sampAddChatMessage(
-                            (prefix ..
-                            "Обновление прошло неудачно. Запускаю устаревшую версию.."),
-                            color
-                          )
-                          update = false
-                        end
-                      end
-                    end
-                  )
-                end,
-                prefix
-              )
-            else
-              update = false
-              print("v" .. thisScript().version .. ": Обновление не требуется.")
-            end
-          end
-        else
-          print(
-            "v" ..
-            thisScript().version ..
-            ": Не могу проверить обновление. Смиритесь или проверьте самостоятельно на " .. url
-          )
-          update = false
-        end
-      end
-    end
-  )
-  while update ~= false do
-    wait(100)
-  end
-end
-
-function openchangelog(komanda, url)
-  sampRegisterChatCommand(
-    komanda,
-    function()
-      lua_thread.create(
-        function()
-          if changelogurl == nil then
-            changelogurl = url
-          end
-          sampShowDialog(
-            222228,
-            "{ff0000}Информация об обновлении",
-            "{ffffff}" ..
-            thisScript().name ..
-            " {ffe600}собирается открыть свой changelog для вас.\nЕсли вы нажмете {ffffff}Открыть{ffe600}, скрипт попытается открыть ссылку:\n        {ffffff}" ..
-            changelogurl ..
-            "\n{ffe600}Если ваша игра крашнется, вы можете открыть эту ссылку сами.",
-            "Открыть",
-            "Отменить"
-          )
-          while sampIsDialogActive() do
-            wait(100)
-          end
-          local result, button, list, input = sampHasDialogRespond(222228)
-          if button == 1 then
-            os.execute('explorer "' .. changelogurl .. '"')
-          end
-        end
-      )
-    end
-  )
 end
 --------------------------------------------------------------------------------
 --------------------------------------3RD---------------------------------------
