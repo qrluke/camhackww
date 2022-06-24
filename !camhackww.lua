@@ -2,7 +2,7 @@ require "lib.moonloader"
 
 script_name("camhackww")
 script_authors("sanek a.k.a Maks_Fender", "qrlk")
-script_version("09.06.2020")
+script_version("09.06.2020-1")
 script_description("Простой камхак с обходом варнингов")
 script_url("https://github.com/qrlk/camhackww")
 
