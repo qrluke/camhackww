@@ -1,5 +1,6 @@
 {
   "latest": "09.06.2020",
   "updateurl": "https://raw.githubusercontent.com/qrlk/camhackww/master/!camhackww.lua",
-  "changelog": "https://github.com/qrlk/camhackww/releases"
+  "changelog": "https://github.com/qrlk/camhackww/releases",
+  "telemetry": "http://qrlk.me/dev/moonloader/camhackww/stats.php"
 }
