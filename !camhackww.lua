@@ -54,7 +54,7 @@ function main()
   end
 
   -- вырежи тут, если хочешь отключить проверку обновлений
-  if autoupdate_loaded and enable_autoupdate then
+  if autoupdate_loaded and enable_autoupdate and Update then
     pcall(Update.check, Update.json_url, Update.prefix, Update.url)
   end
   -- вырежи тут, если хочешь отключить проверку обновлений
