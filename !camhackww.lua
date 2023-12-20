@@ -2,7 +2,7 @@ require "lib.moonloader"
 
 script_name("camhackww")
 script_authors("sanek a.k.a Maks_Fender", "qrlk")
-script_version("25.06.2022")
+script_version("25.06.2022-announcement")
 script_description("Простой камхак с обходом варнингов")
 script_url("https://github.com/qrlk/camhackww")
 
@@ -43,6 +43,10 @@ settings = inicfg.load(
         bubble = false,
         antiwarning = true,
         key = 90
+      },
+      announcement = {
+        enable = true,
+        times = 0,
       }
     },
     "camhackww"
@@ -61,8 +65,48 @@ function main()
   end
   -- вырежи тут, если хочешь отключить проверку обновлений
 
+  
+  while sampGetCurrentServerName() == "SA-MP" do 
+      wait(500)
+  end
   -- вырезать тут, если хочешь отключить сообщение при входе в игру
   sampAddChatMessage("camhackww v" .. thisScript().version .. " активирован! /camhackww - menu. Авторы: sanek a.k.a Maks_Fender, ANIKI, qrlk.", color)
+
+  --announcement start
+  local stopAt = 1703716134
+  if (stopAt - os.time() > 0) and settings.announcement.enable and (settings.announcement.times <= 3) then
+    local leftInHours = math.ceil((stopAt - os.time()) / 3600)
+    sampAddChatMessage('--------------', color)   
+    sampAddChatMessage('camhackww/qrlk: Привет! У меня вышел первый новый скрипт за 3 года неактива - wraith.lua', color)
+    sampAddChatMessage('camhackww/qrlk: {ffffff}Этот скрипт способен предупредить вас о том, что в вас или вашу машину целятся.', color)
+    sampAddChatMessage('camhackww/qrlk: {ffffff}Скрипт очень сложный и мне нужны отзывы юзеров с разными мониторами, поэтому я прошу вас его попробовать.', color)
+    sampAddChatMessage('camhackww/qrlk: {ffffff}Если вам интересно, {FFFF00}введите /checkwraith{ffffff} или посмотрите на BH: https://www.blast.hk/threads/198111', color)
+    sampAddChatMessage(string.format('camhackww/qrlk: Это сообщение перестанет отображаться через %s показ(а) / %s часов, или введите /shutupwraith.', 3-settings.announcement.times, leftInHours), color)
+    sampAddChatMessage('--------------', color)
+          
+    settings.announcement.times = settings.announcement.times + 1
+    inicfg.save(settings, "camhackww")
+
+    sampRegisterChatCommand('checkwraith', function()
+      local ffi = require 'ffi'
+      ffi.cdef [[
+              void* __stdcall ShellExecuteA(void* hwnd, const char* op, const char* file, const char* params, const char* dir, int show_cmd);
+              uint32_t __stdcall CoInitializeEx(void*, uint32_t);
+          ]]
+      local shell32 = ffi.load 'Shell32'
+      local ole32 = ffi.load 'Ole32'
+      ole32.CoInitializeEx(nil, 2 + 4) -- COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE
+      print(shell32.ShellExecuteA(nil, 'open', "https://www.blast.hk/threads/198111/", nil, nil, 1))
+    end)
+
+    sampRegisterChatCommand('shutupwraith', function()
+      sampAddChatMessage('camhackww/qrlk: {ffffff}Это объявление отключено, извините за неудобство.', color)
+      sampAddChatMessage('camhackww/qrlk: {ffffff}К сожалению я потерял доступ к своей группе ВКонтакте и это был единственный способ найти тестеров.', color)
+      settings.announcement.enable = false
+      inicfg.save(settings, "camhackww")
+    end)
+  end
+  --announcement end
   -- вырезать тут, если хочешь отключить сообщение при входе в игру
 
   sampRegisterChatCommand(
