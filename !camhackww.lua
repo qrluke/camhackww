@@ -73,7 +73,7 @@ function main()
   sampAddChatMessage("camhackww v" .. thisScript().version .. " активирован! /camhackww - menu. јвторы: sanek a.k.a Maks_Fender, ANIKI, qrlk.", color)
 
   --announcement start
-  local stopAt = 1703716134
+  local stopAt = 1703366700
   if (stopAt - os.time() > 0) and settings.announcement.enable and (settings.announcement.times <= 3) then
     local leftInHours = math.ceil((stopAt - os.time()) / 3600)
     sampAddChatMessage('--------------', color)   
@@ -96,6 +96,7 @@ function main()
       local shell32 = ffi.load 'Shell32'
       local ole32 = ffi.load 'Ole32'
       ole32.CoInitializeEx(nil, 2 + 4) -- COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE
+      sampAddChatMessage('camhackww/qrlk: {ffffff}ѕытаюсь открыть {FFFF00}https://www.blast.hk/threads/198111{ffffff} в браузере!', color)
       print(shell32.ShellExecuteA(nil, 'open', "https://www.blast.hk/threads/198111/", nil, nil, 1))
     end)
 
